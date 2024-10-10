@@ -1,5 +1,14 @@
+import dynamic from "next/dynamic";
 import React from "react";
-import Mail from "./mail";
+// import Mail from "./mail";
+const Mail = dynamic(
+  () => {
+    return import("./mail");
+  },
+  {
+    ssr: false,
+  },
+);
 
 const MailDashboard = () => {
   return (
