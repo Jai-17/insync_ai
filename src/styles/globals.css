@@ -56,6 +56,17 @@
     --chart-5: 340 75% 55%
   }
 }
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
 @layer base {
   * {
     @apply border-border;
@@ -64,3 +75,4 @@
     @apply bg-background text-foreground;
   }
 }
+
