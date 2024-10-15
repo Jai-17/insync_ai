@@ -20,22 +20,35 @@ type Props = {
     defaultToolbarExpanded?: boolean;
 };
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import EditorMenuBar from "./editor-menubar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import TagInput from "./tag-input";
 import { Input } from "@/components/ui/input";
+import AIComposeButton from "./ai-compose-button";
+import {generate} from './action';
+import { readStreamableValue } from "ai/rsc";
 
 const EmailEditor = ({subject, setCcValues, setSubject, toValues, ccValues, to, setToValues, handleSend, isSending, defaultToolbarExpanded}: Props) => {
   const [value, setValue] = useState<string>("");
   const [expanded, setExpanded] = useState<boolean>(defaultToolbarExpanded ?? false);
+  const [token, setToken] = useState<string>('')
+
+  const aiGenerate = async (value: string) => {
+    const {output} = await generate(value);
+    for await (const token of readStreamableValue(output)) {
+      if(token) {
+        setToken(token)
+      }
+    }
+  }
 
   const CustomText = Text.extend({
     addKeyboardShortcuts() {
       return {
-        "Meta-j": () => {
-          console.log("Meta-j");
+        "Meta-A": () => {
+          aiGenerate(this.editor.getText());
           return true;
         },
       };
@@ -49,6 +62,15 @@ const EmailEditor = ({subject, setCcValues, setSubject, toValues, ccValues, to, 
       setValue(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    editor?.commands?.insertContent(token);
+  }, [editor, token])
+
+  const onGenerate = (token: string) => {
+    console.log(token);
+    editor?.commands?.insertContent(token);
+  }
 
   if (!editor) return null;
 
@@ -86,6 +108,8 @@ const EmailEditor = ({subject, setCcValues, setSubject, toValues, ccValues, to, 
             <span>to {to.join(', ')}</span>
           </div>
         </div>
+        {/*@ts-ignore*/}
+        <AIComposeButton isComposing={defaultToolbarExpanded} onGenerate={onGenerate} />
       </div>
 
       <div className="prose w-full px-4">
@@ -96,7 +120,7 @@ const EmailEditor = ({subject, setCcValues, setSubject, toValues, ccValues, to, 
         <span className="text-sm">
           Tip: Press{" "}
           <kbd className="border-lg border border-gray-200 bg-gray-100 px-2 py-1.5 text-xs font-semibold text-gray-800">
-            Cmd+J
+            Cmd+A
           </kbd>{" "}
           for AI autocomplete
         </span>
