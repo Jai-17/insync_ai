@@ -23,7 +23,6 @@ const Component = ({ replyDetails }: { replyDetails: NonNullable<RouterOutputs['
     const [toValues, setToValues] = useState<{ label: string, value: string }[]>(replyDetails.to.map(to => ({ label: to.address ?? to.name, value: to.address })) || [])
     const [ccValues, setCcValues] = useState<{ label: string, value: string }[]>(replyDetails.cc.map(cc => ({ label: cc.address ?? cc.name, value: cc.address })) || [])
 
-    // const sendEmail = api.account.sendEmail.useMutation()
     useEffect(() => {
         if (!replyDetails || !threadId) return;
 
@@ -35,24 +34,30 @@ const Component = ({ replyDetails }: { replyDetails: NonNullable<RouterOutputs['
 
     }, [replyDetails, threadId])
 
+    const sendEmail = api.account.sendEmail.useMutation()
+
     const handleSend = async (value: string) => {
-        // if (!replyDetails) return;
-        // sendEmail.mutate({
-        //     accountId,
-        //     threadId: threadId ?? undefined,
-        //     body: value,
-        //     subject,
-        //     from: replyDetails.from,
-        //     to: replyDetails.to.map(to => ({ name: to.name ?? to.address, address: to.address })),
-        //     cc: replyDetails.cc.map(cc => ({ name: cc.name ?? cc.address, address: cc.address })),
-        //     replyTo: replyDetails.from,
-        //     inReplyTo: replyDetails.id,
-        // }, {
-        //     onSuccess: () => {
-        //         toast.success("Email sent")
-        //         // editor?.commands.clearContent()
-        //     }
-        // })
+        if (!replyDetails) return;
+        sendEmail.mutate({
+            accountId,
+            threadId: threadId ?? undefined,
+            body: value,
+            subject,
+            from: replyDetails.from,
+            to: replyDetails.to.map(to => ({ name: to.name ?? to.address, address: to.address })),
+            cc: replyDetails.cc.map(cc => ({ name: cc.name ?? cc.address, address: cc.address })),
+            replyTo: replyDetails.from,
+            inReplyTo: replyDetails.id,
+        }, {
+            onSuccess: () => {
+                toast.success("Email sent")
+                // editor?.commands.clearContent()
+            },
+            onError: (error) => {
+                console.log(error)
+                toast.error("Error sending email");
+            }
+        })
     }
 
     return (
@@ -71,7 +76,7 @@ const Component = ({ replyDetails }: { replyDetails: NonNullable<RouterOutputs['
             setSubject={setSubject}
             to={toValues.map(to => to.value)}
             handleSend={handleSend}
-            isSending={false}
+            isSending={sendEmail.isPending}
         />
     )
 

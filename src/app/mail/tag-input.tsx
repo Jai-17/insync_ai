@@ -3,7 +3,6 @@ import { api } from "@/trpc/react";
 import React, { useState } from "react";
 import Avatar from "react-avatar";
 import Select from "react-select";
-import { string } from "zod";
 
 type Props = {
   placeholder: string;
@@ -50,7 +49,7 @@ const TagInput = ({
         //@ts-ignore
         onChange={onChange}
         //@ts-ignore
-        options={inputValue ? options.concat({
+        options={inputValue ? options?.concat({
             label: (
                 <span className='flex items-center gap-2'>
                     <Avatar name={inputValue} size='25' textSizeRatio={2} round={true} />
@@ -62,15 +61,18 @@ const TagInput = ({
         placeholder={placeholder}
         classNames={{
           control: () => {
-            return "!border-none !outline-none !ring-0 !shadow-none focus:border-none focus:outline-none focus:ring-0 focus:shadow-none dark:bg-transparent";
+              return '!border-none !outline-none !ring-0 !shadow-none focus:border-none focus:outline-none focus:ring-0 focus:shadow-none dark:bg-transparent'
           },
           multiValue: () => {
-            return "dark:!bg-gray-700";
+              return 'dark:!bg-gray-700'
           },
           multiValueLabel: () => {
-            return "dark:text-white dark:bg-gray-700 rounded-md";
+              return 'dark:text-white dark:bg-gray-700 rounded-md'
           },
-        }}
+          option: () => {
+            return "dark:!bg-gray-800"
+          }
+      }}
         classNamePrefix="select"
       />
     </div>
